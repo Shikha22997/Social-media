@@ -86,7 +86,6 @@
 
   <header class="border-b border-slate-800/80 glass-panel sticky top-0 z-40 px-4 lg:px-8 py-3">
     <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
-      <!-- Title & Live Status Indicator -->
       <div class="flex items-center space-x-3">
         <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
           <i class="fa-solid fa-chart-line text-xl text-white"></i>
@@ -102,9 +101,7 @@
         </div>
       </div>
 
-      <!-- Action & View Controls -->
       <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
-        <!-- Role View Toggle Buttons -->
         <div class="bg-slate-900/90 p-1 rounded-xl border border-slate-800 flex items-center">
           <button id="btnStudentView" onclick="switchView('student')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-2 bg-indigo-600 text-white shadow">
             <i class="fa-solid fa-mobile-screen-button"></i>
@@ -116,13 +113,11 @@
           </button>
         </div>
 
-        <!-- Join QR Code Button -->
         <button onclick="openQRModal()" class="p-2 sm:px-3 sm:py-1.5 rounded-xl glass-card hover:bg-slate-800 text-slate-300 hover:text-white transition-all text-xs font-medium flex items-center gap-2 border border-slate-700/60" title="Share Poll Link">
           <i class="fa-solid fa-qrcode text-indigo-400"></i>
           <span class="hidden sm:inline">Join Code</span>
         </button>
 
-        <!-- Simulated Voting Button -->
         <button id="btnSimulate" onclick="toggleSimulatedVotes()" class="p-2 sm:px-3 sm:py-1.5 rounded-xl glass-card hover:bg-slate-800 text-slate-300 hover:text-white transition-all text-xs font-medium flex items-center gap-2 border border-slate-700/60" title="Simulate responses in real-time">
           <i id="simulateIcon" class="fa-solid fa-play text-amber-400"></i>
           <span id="simulateText" class="hidden sm:inline">Simulate Live Class</span>
@@ -133,10 +128,8 @@
 
   <main class="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-8 flex flex-col justify-start">
     
-    <!-- STUDENT VOTING INTERFACE -->
     <section id="studentSection" class="max-w-2xl mx-auto w-full py-4 space-y-6">
       
-      <!-- Banner Question -->
       <div class="glass-panel rounded-2xl p-6 sm:p-8 text-center relative overflow-hidden shadow-2xl">
         <div class="absolute -top-12 -right-12 w-40 h-40 bg-indigo-500/10 rounded-full blur-2xl"></div>
         <div class="absolute -bottom-12 -left-12 w-40 h-40 bg-purple-500/10 rounded-full blur-2xl"></div>
@@ -152,11 +145,9 @@
         </p>
       </div>
 
-      <!-- Voting Options Form -->
       <div class="glass-panel rounded-2xl p-6 sm:p-8 shadow-2xl border border-slate-800/80">
         <form id="voteForm" onsubmit="handleVoteSubmit(event)" class="space-y-6">
           
-          <!-- Step 1: Hours Choice Grid -->
           <div>
             <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
               1. Select Total Hours Spent Today
@@ -202,10 +193,9 @@
                 <div class="text-[10px] text-slate-400 mt-1">Marathon</div>
               </button>
             </div>
-            <input type="hidden" id="selectedHours" name="selectedHours" required>
+            <input type="hidden" id="selectedHours" name="selectedHours">
           </div>
 
-          <!-- Step 2: Platform Selection Grid -->
           <div>
             <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
               2. Which app consumed most of your time?
@@ -247,7 +237,6 @@
             <input type="hidden" id="selectedPlatform" name="selectedPlatform" value="Instagram">
           </div>
 
-          <!-- Submit Button -->
           <div>
             <button id="submitVoteBtn" type="submit" class="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white font-bold text-base shadow-lg shadow-indigo-600/30 transition-all transform active:scale-[0.98] flex items-center justify-center space-x-2">
               <i class="fa-solid fa-paper-plane"></i>
@@ -256,7 +245,6 @@
           </div>
         </form>
 
-        <!-- Response Success Banner -->
         <div id="voteSuccessBanner" class="hidden mt-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-center animate-bounce-short">
           <div class="flex items-center justify-center space-x-2 font-bold text-base">
             <i class="fa-solid fa-circle-check text-emerald-400 text-xl"></i>
@@ -267,13 +255,8 @@
       </div>
     </section>
 
-    <!-- PRESENTER LIVE ANALYTICS DASHBOARD -->
     <section id="presenterSection" class="hidden space-y-6">
-      
-      <!-- Key KPI Metric Summary Cards -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        
-        <!-- KPI 1: Total Votes -->
         <div class="glass-panel p-5 rounded-2xl border border-slate-800 flex items-center justify-between relative overflow-hidden">
           <div>
             <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Votes</p>
@@ -285,7 +268,6 @@
           </div>
         </div>
 
-        <!-- KPI 2: Class Average Hours -->
         <div class="glass-panel p-5 rounded-2xl border border-slate-800 flex items-center justify-between relative overflow-hidden">
           <div>
             <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Class Average</p>
@@ -297,7 +279,6 @@
           </div>
         </div>
 
-        <!-- KPI 3: Most Popular Platform -->
         <div class="glass-panel p-5 rounded-2xl border border-slate-800 flex items-center justify-between relative overflow-hidden">
           <div>
             <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Top Platform</p>
@@ -309,7 +290,6 @@
           </div>
         </div>
 
-        <!-- KPI 4: Total Accumulated Class Time -->
         <div class="glass-panel p-5 rounded-2xl border border-slate-800 flex items-center justify-between relative overflow-hidden">
           <div>
             <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Class Time</p>
@@ -320,13 +300,9 @@
             <i class="fa-solid fa-clock"></i>
           </div>
         </div>
-
       </div>
 
-      <!-- Main Visual Charts Row -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        <!-- Hours Distribution Bar Chart -->
         <div class="lg:col-span-2 glass-panel p-6 rounded-2xl border border-slate-800 flex flex-col justify-between">
           <div class="flex items-center justify-between mb-4">
             <div>
@@ -341,13 +317,11 @@
               <span>Updating Live</span>
             </div>
           </div>
-          
           <div class="relative h-72 sm:h-80 w-full">
             <canvas id="hoursBarChart"></canvas>
           </div>
         </div>
 
-        <!-- Platform Distribution Doughnut Chart -->
         <div class="space-y-6 flex flex-col">
           <div class="glass-panel p-6 rounded-2xl border border-slate-800 flex-1 flex flex-col justify-between">
             <div class="mb-2">
@@ -357,19 +331,14 @@
               </h3>
               <p class="text-xs text-slate-400">Which apps are consuming class focus?</p>
             </div>
-            
             <div class="relative h-52 w-full flex items-center justify-center my-auto">
               <canvas id="platformDoughnutChart"></canvas>
             </div>
           </div>
         </div>
-
       </div>
 
-      <!-- Live Stream Feed & Insight Summary -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        <!-- Live Response Stream Ticker -->
         <div class="lg:col-span-2 glass-panel p-6 rounded-2xl border border-slate-800">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-base font-bold text-white flex items-center gap-2">
@@ -386,7 +355,6 @@
           </div>
         </div>
 
-        <!-- Class Insight Box -->
         <div class="glass-panel p-6 rounded-2xl border border-slate-800 flex flex-col justify-between">
           <div>
             <h3 class="text-base font-bold text-white flex items-center gap-2 mb-3">
@@ -399,7 +367,6 @@
             </div>
           </div>
 
-          <!-- Controls -->
           <div class="pt-4 mt-4 border-t border-slate-800/80 flex items-center justify-between">
             <button onclick="confirmResetPoll()" class="text-xs text-rose-400 hover:text-rose-300 font-medium flex items-center gap-1.5 transition-colors">
               <i class="fa-solid fa-trash-can"></i>
@@ -411,18 +378,14 @@
             </button>
           </div>
         </div>
-
       </div>
-
     </section>
   </main>
 
-  <!-- Footer -->
   <footer class="border-t border-slate-800/60 py-4 px-4 text-center text-xs text-slate-500">
     <p>SocialPulse Live Classroom Polling Tool &bull; Real-time data visualization</p>
   </footer>
 
-  <!-- QR Code Share Modal -->
   <div id="qrModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="glass-panel rounded-2xl p-6 sm:p-8 max-w-sm w-full text-center border border-slate-700 shadow-2xl relative">
       <button onclick="closeQRModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
@@ -451,7 +414,6 @@
     </div>
   </div>
 
-  <!-- Toast Banner -->
   <div id="toastNotification" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
     <div class="glass-panel px-4 py-3 rounded-xl border border-indigo-500/40 shadow-2xl flex items-center space-x-3 text-xs text-slate-200">
       <i id="toastIcon" class="fa-solid fa-circle-info text-indigo-400 text-base"></i>
@@ -460,12 +422,10 @@
   </div>
 
   <script type="module">
-    // Firebase SDK imports
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, doc, setDoc, onSnapshot, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // Application state variables
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'social-media-poll-class';
     let db = null;
     let auth = null;
@@ -473,32 +433,42 @@
     let votesSnapshotData = [];
     let simulateInterval = null;
     let isSimulating = false;
+    let isFirebaseConnected = false;
 
-    // Student identifier
     let myStudentId = localStorage.getItem('social_poll_student_id') || 'student_' + Math.random().toString(36).substring(2, 9);
     localStorage.setItem('social_poll_student_id', myStudentId);
 
-    // Form selection variables
     let currentSelectedHours = null;
     let currentSelectedPlatform = 'Instagram';
 
-    // Chart instances
     let barChartInstance = null;
     let doughnutChartInstance = null;
 
-    // Firebase Configuration
+    function loadLocalVotes() {
+      try {
+        const cached = localStorage.getItem('social_poll_local_votes');
+        if (cached) {
+          votesSnapshotData = JSON.parse(cached);
+        }
+      } catch (e) {
+        votesSnapshotData = [];
+      }
+    }
+
     const firebaseConfig = typeof __firebase_config !== 'undefined' 
       ? JSON.parse(__firebase_config) 
-      : {
-          apiKey: "AIzaSyDemoConfigForTestingOnly",
-          authDomain: "demo-app.firebaseapp.com",
-          projectId: "demo-app",
-          storageBucket: "demo-app.appspot.com",
-          messagingSenderId: "123456789",
-          appId: "1:123456789:web:demo"
-        };
+      : null;
 
     async function initFirebase() {
+      loadLocalVotes();
+
+      if (!firebaseConfig) {
+        console.warn("No cloud config found. Running in standalone local mode.");
+        initCharts();
+        updateUIWithData(votesSnapshotData);
+        return;
+      }
+
       try {
         const app = initializeApp(firebaseConfig);
         auth = getAuth(app);
@@ -515,11 +485,14 @@
           myStudentId = currentUser.uid;
         }
 
+        isFirebaseConnected = true;
         setupRealtimeListener();
       } catch (err) {
-        console.warn("Firebase live sync running in fallback / offline mode:", err);
+        console.warn("Cloud sync running in fallback / offline mode:", err);
+        isFirebaseConnected = false;
+        db = null;
         initCharts();
-        updateUIWithData([]);
+        updateUIWithData(votesSnapshotData);
       }
     }
 
@@ -528,7 +501,7 @@
     }
 
     function setupRealtimeListener() {
-      if (!db) return;
+      if (!db || !isFirebaseConnected) return;
       const votesCol = getVotesCollectionRef();
 
       onSnapshot(votesCol, (snapshot) => {
@@ -538,14 +511,18 @@
         });
         
         votesSnapshotData = votes;
+        localStorage.setItem('social_poll_local_votes', JSON.stringify(votes));
         updateUIWithData(votes);
       }, (error) => {
-        console.error("Firestore snapshot error:", error);
+        console.error("Firestore snapshot error, switching to local mode:", error);
+        isFirebaseConnected = false;
+        updateUIWithData(votesSnapshotData);
       });
     }
 
     function initCharts() {
-      // Hours Distribution Bar Chart
+      if (barChartInstance && doughnutChartInstance) return;
+
       const barCtx = document.getElementById('hoursBarChart').getContext('2d');
       barChartInstance = new Chart(barCtx, {
         type: 'bar',
@@ -612,7 +589,6 @@
         }
       });
 
-      // Platform Doughnut Chart
       const doughnutCtx = document.getElementById('platformDoughnutChart').getContext('2d');
       doughnutChartInstance = new Chart(doughnutCtx, {
         type: 'doughnut',
@@ -631,9 +607,7 @@
           responsive: true,
           maintainAspectRatio: false,
           cutout: '68%',
-          animation: {
-            duration: 750
-          },
+          animation: { duration: 750 },
           plugins: {
             legend: {
               position: 'bottom',
@@ -816,7 +790,10 @@
       e.preventDefault();
       
       if (currentSelectedHours === null) {
-        showToast("Please tap how many hours you spent!", "warning");
+        showToast("Please select your hours spent today!", "warning");
+        const hoursGrid = document.getElementById('hoursGrid');
+        hoursGrid.classList.add('animate-pulse');
+        setTimeout(() => hoursGrid.classList.remove('animate-pulse'), 1500);
         return;
       }
 
@@ -827,26 +804,33 @@
         timestamp: Date.now()
       };
 
-      try {
-        if (db) {
+      let savedInCloud = false;
+
+      if (db && isFirebaseConnected) {
+        try {
           const voteDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'votes', myStudentId);
           await setDoc(voteDocRef, voteData);
-        } else {
-          const idx = votesSnapshotData.findIndex(v => v.id === myStudentId);
-          if (idx >= 0) votesSnapshotData[idx] = { id: myStudentId, ...voteData };
-          else votesSnapshotData.push({ id: myStudentId, ...voteData });
-          updateUIWithData(votesSnapshotData);
+          savedInCloud = true;
+        } catch (err) {
+          console.warn("Could not write to cloud, saving locally:", err);
+          isFirebaseConnected = false;
         }
+      }
 
-        document.getElementById('voteSuccessBanner').classList.remove('hidden');
-        showToast("Your vote has been cast live!", "success");
+      if (!savedInCloud) {
+        const idx = votesSnapshotData.findIndex(v => v.id === myStudentId);
+        if (idx >= 0) votesSnapshotData[idx] = { id: myStudentId, ...voteData };
+        else votesSnapshotData.push({ id: myStudentId, ...voteData });
+        
+        localStorage.setItem('social_poll_local_votes', JSON.stringify(votesSnapshotData));
+        updateUIWithData(votesSnapshotData);
+      }
 
-        if (typeof confetti === 'function') {
-          confetti({ particleCount: 30, spread: 60, origin: { y: 0.8 } });
-        }
-      } catch (err) {
-        console.error("Error saving vote:", err);
-        showToast("Could not save vote. Please try again.", "error");
+      document.getElementById('voteSuccessBanner').classList.remove('hidden');
+      showToast("Your vote has been recorded!", "success");
+
+      if (typeof confetti === 'function') {
+        confetti({ particleCount: 40, spread: 70, origin: { y: 0.8 } });
       }
     };
 
@@ -902,7 +886,7 @@
             timestamp: Date.now()
           };
 
-          if (db) {
+          if (db && isFirebaseConnected) {
             try {
               const voteRef = doc(db, 'artifacts', appId, 'public', 'data', 'votes', fakeStudentId);
               await setDoc(voteRef, fakeVote);
@@ -911,6 +895,7 @@
             }
           } else {
             votesSnapshotData.push({ id: fakeStudentId, ...fakeVote });
+            localStorage.setItem('social_poll_local_votes', JSON.stringify(votesSnapshotData));
             updateUIWithData(votesSnapshotData);
           }
         }, 1200);
@@ -920,7 +905,7 @@
     window.confirmResetPoll = async function() {
       if (!confirm("Are you sure you want to clear all poll responses for this session?")) return;
 
-      if (db) {
+      if (db && isFirebaseConnected) {
         try {
           const colRef = getVotesCollectionRef();
           const snapshot = await getDocs(colRef);
@@ -936,6 +921,7 @@
         }
       } else {
         votesSnapshotData = [];
+        localStorage.removeItem('social_poll_local_votes');
         updateUIWithData([]);
         showToast("Poll reset!", "success");
       }
@@ -943,11 +929,7 @@
 
     window.triggerConfetti = function() {
       if (typeof confetti === 'function') {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 }
-        });
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
       }
     };
 
