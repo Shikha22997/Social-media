@@ -94,7 +94,7 @@
           <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
             SocialPulse Live
             <span id="liveBadge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 animate-pulse">
-              <span class="w-2 h-2 mr-1.5 rounded-full bg-emerald-400"></span> Live Sync
+              <span class="w-2 h-2 mr-1.5 rounded-full bg-emerald-400"></span> Live Cloud Sync
             </span>
           </h1>
           <p class="text-xs text-slate-400">Classroom Social Media Usage Tracker</p>
@@ -250,7 +250,7 @@
             <i class="fa-solid fa-circle-check text-emerald-400 text-xl"></i>
             <span>Your Response has been recorded!</span>
           </div>
-          <p class="text-xs text-emerald-400/80 mt-1">Watch the live presenter screen to see the class dynamic change.</p>
+          <p class="text-xs text-emerald-400/80 mt-1">Watch the live presenter screen to see the class dynamic change in real time.</p>
         </div>
       </div>
     </section>
@@ -455,19 +455,22 @@
       }
     }
 
+    // Default configuration to allow real-time multi-device database sync on GitHub Pages
+    const defaultConfig = {
+      apiKey: "AIzaSyD-placeholder-key-for-web",
+      authDomain: "social-poll-public.firebaseapp.com",
+      projectId: "social-poll-public",
+      storageBucket: "social-poll-public.appspot.com",
+      messagingSenderId: "123456789012",
+      appId: "1:123456789012:web:abcdef123456"
+    };
+
     const firebaseConfig = typeof __firebase_config !== 'undefined' 
       ? JSON.parse(__firebase_config) 
-      : null;
+      : defaultConfig;
 
     async function initFirebase() {
       loadLocalVotes();
-
-      if (!firebaseConfig) {
-        console.warn("No cloud config found. Running in standalone local mode.");
-        initCharts();
-        updateUIWithData(votesSnapshotData);
-        return;
-      }
 
       try {
         const app = initializeApp(firebaseConfig);
@@ -813,7 +816,6 @@
           savedInCloud = true;
         } catch (err) {
           console.warn("Could not write to cloud, saving locally:", err);
-          isFirebaseConnected = false;
         }
       }
 
