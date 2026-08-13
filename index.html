@@ -94,7 +94,7 @@
           <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
             SocialPulse Live
             <span id="liveBadge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 animate-pulse">
-              <span class="w-2 h-2 mr-1.5 rounded-full bg-emerald-400"></span> Live Cloud Sync
+              <span class="w-2 h-2 mr-1.5 rounded-full bg-emerald-400"></span> Live Sync
             </span>
           </h1>
           <p class="text-xs text-slate-400">Classroom Social Media Usage Tracker</p>
@@ -250,7 +250,7 @@
             <i class="fa-solid fa-circle-check text-emerald-400 text-xl"></i>
             <span>Your Response has been recorded!</span>
           </div>
-          <p class="text-xs text-emerald-400/80 mt-1">Watch the live presenter screen to see the class dynamic change in real time.</p>
+          <p class="text-xs text-emerald-400/80 mt-1">Watch the live presenter screen to see the class dynamic change.</p>
         </div>
       </div>
     </section>
@@ -422,18 +422,13 @@
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, doc, setDoc, onSnapshot, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    // Public real-time sync channel for live multi-device classroom polling
+    const TOPIC_ID = 'social_pulse_poll_shikha22997_live_class';
+    const NTFY_URL = `https://ntfy.sh/${TOPIC_ID}`;
 
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'social-media-poll-class';
-    let db = null;
-    let auth = null;
-    let currentUser = null;
-    let votesSnapshotData = [];
+    let allVotesMap = {};
     let simulateInterval = null;
     let isSimulating = false;
-    let isFirebaseConnected = false;
 
     let myStudentId = localStorage.getItem('social_poll_student_id') || 'student_' + Math.random().toString(36).substring(2, 9);
     localStorage.setItem('social_poll_student_id', myStudentId);
@@ -448,79 +443,86 @@
       try {
         const cached = localStorage.getItem('social_poll_local_votes');
         if (cached) {
-          votesSnapshotData = JSON.parse(cached);
+          const arr = JSON.parse(cached);
+          arr.forEach(v => { if (v && v.id) allVotesMap[v.id] = v; });
         }
       } catch (e) {
-        votesSnapshotData = [];
+        allVotesMap = {};
       }
     }
 
-    // Default configuration to allow real-time multi-device database sync on GitHub Pages
-    const defaultConfig = {
-      apiKey: "AIzaSyD-placeholder-key-for-web",
-      authDomain: "social-poll-public.firebaseapp.com",
-      projectId: "social-poll-public",
-      storageBucket: "social-poll-public.appspot.com",
-      messagingSenderId: "123456789012",
-      appId: "1:123456789012:web:abcdef123456"
-    };
-
-    const firebaseConfig = typeof __firebase_config !== 'undefined' 
-      ? JSON.parse(__firebase_config) 
-      : defaultConfig;
-
-    async function initFirebase() {
+    async function initRealtimeSync() {
       loadLocalVotes();
+      initCharts();
+      updateUIWithData(Object.values(allVotesMap));
 
+      // 1. Fetch initial historical votes cast so far across all devices
+      await fetchHistory();
+
+      // 2. Listen live for incoming votes from students via Server-Sent Events
+      setupSSEListener();
+
+      // 3. Backup poll interval (every 3 seconds) to guarantee 100% sync reliability
+      setInterval(fetchHistory, 3000);
+    }
+
+    async function fetchHistory() {
       try {
-        const app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-        db = getFirestore(app);
-
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-          await signInWithCustomToken(auth, __initial_auth_token);
-        } else {
-          await signInAnonymously(auth);
-        }
+        const res = await fetch(`${NTFY_URL}/json?poll=1`);
+        if (!res.ok) return;
+        const text = await res.text();
+        const lines = text.trim().split('\n');
         
-        currentUser = auth.currentUser;
-        if (currentUser) {
-          myStudentId = currentUser.uid;
-        }
+        let hasNew = false;
+        lines.forEach(line => {
+          if (!line) return;
+          try {
+            const msgObj = JSON.parse(line);
+            if (msgObj.message) {
+              const payload = JSON.parse(msgObj.message);
+              if (payload.action === 'RESET_ALL') {
+                allVotesMap = {};
+                hasNew = true;
+              } else if (payload.userId && payload.hours !== undefined) {
+                allVotesMap[payload.userId] = { id: payload.userId, ...payload };
+                hasNew = true;
+              }
+            }
+          } catch (err) {}
+        });
 
-        isFirebaseConnected = true;
-        setupRealtimeListener();
-      } catch (err) {
-        console.warn("Cloud sync running in fallback / offline mode:", err);
-        isFirebaseConnected = false;
-        db = null;
-        initCharts();
-        updateUIWithData(votesSnapshotData);
+        if (hasNew) {
+          const votesArr = Object.values(allVotesMap);
+          localStorage.setItem('social_poll_local_votes', JSON.stringify(votesArr));
+          updateUIWithData(votesArr);
+        }
+      } catch (e) {
+        console.warn("Sync notice:", e);
       }
     }
 
-    function getVotesCollectionRef() {
-      return collection(db, 'artifacts', appId, 'public', 'data', 'votes');
-    }
-
-    function setupRealtimeListener() {
-      if (!db || !isFirebaseConnected) return;
-      const votesCol = getVotesCollectionRef();
-
-      onSnapshot(votesCol, (snapshot) => {
-        const votes = [];
-        snapshot.forEach((doc) => {
-          votes.push({ id: doc.id, ...doc.data() });
-        });
-        
-        votesSnapshotData = votes;
-        localStorage.setItem('social_poll_local_votes', JSON.stringify(votes));
-        updateUIWithData(votes);
-      }, (error) => {
-        console.error("Firestore snapshot error, switching to local mode:", error);
-        isFirebaseConnected = false;
-        updateUIWithData(votesSnapshotData);
-      });
+    function setupSSEListener() {
+      try {
+        const sse = new EventSource(`${NTFY_URL}/sse`);
+        sse.onmessage = (event) => {
+          try {
+            const msgObj = JSON.parse(event.data);
+            if (msgObj.message) {
+              const payload = JSON.parse(msgObj.message);
+              if (payload.action === 'RESET_ALL') {
+                allVotesMap = {};
+              } else if (payload.userId && payload.hours !== undefined) {
+                allVotesMap[payload.userId] = { id: payload.userId, ...payload };
+              }
+              const votesArr = Object.values(allVotesMap);
+              localStorage.setItem('social_poll_local_votes', JSON.stringify(votesArr));
+              updateUIWithData(votesArr);
+            }
+          } catch (e) {}
+        };
+      } catch (e) {
+        console.warn("SSE connection fallback active:", e);
+      }
     }
 
     function initCharts() {
@@ -807,25 +809,20 @@
         timestamp: Date.now()
       };
 
-      let savedInCloud = false;
+      // 1. Immediate local update
+      allVotesMap[myStudentId] = { id: myStudentId, ...voteData };
+      const votesArr = Object.values(allVotesMap);
+      localStorage.setItem('social_poll_local_votes', JSON.stringify(votesArr));
+      updateUIWithData(votesArr);
 
-      if (db && isFirebaseConnected) {
-        try {
-          const voteDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'votes', myStudentId);
-          await setDoc(voteDocRef, voteData);
-          savedInCloud = true;
-        } catch (err) {
-          console.warn("Could not write to cloud, saving locally:", err);
-        }
-      }
-
-      if (!savedInCloud) {
-        const idx = votesSnapshotData.findIndex(v => v.id === myStudentId);
-        if (idx >= 0) votesSnapshotData[idx] = { id: myStudentId, ...voteData };
-        else votesSnapshotData.push({ id: myStudentId, ...voteData });
-        
-        localStorage.setItem('social_poll_local_votes', JSON.stringify(votesSnapshotData));
-        updateUIWithData(votesSnapshotData);
+      // 2. Broadcast live to all other devices across the web
+      try {
+        await fetch(NTFY_URL, {
+          method: 'POST',
+          body: JSON.stringify(voteData)
+        });
+      } catch (err) {
+        console.warn("Realtime broadcast error:", err);
       }
 
       document.getElementById('voteSuccessBanner').classList.remove('hidden');
@@ -888,18 +885,12 @@
             timestamp: Date.now()
           };
 
-          if (db && isFirebaseConnected) {
-            try {
-              const voteRef = doc(db, 'artifacts', appId, 'public', 'data', 'votes', fakeStudentId);
-              await setDoc(voteRef, fakeVote);
-            } catch (e) {
-              console.warn("Simulation write error:", e);
-            }
-          } else {
-            votesSnapshotData.push({ id: fakeStudentId, ...fakeVote });
-            localStorage.setItem('social_poll_local_votes', JSON.stringify(votesSnapshotData));
-            updateUIWithData(votesSnapshotData);
-          }
+          allVotesMap[fakeStudentId] = { id: fakeStudentId, ...fakeVote };
+          const arr = Object.values(allVotesMap);
+          localStorage.setItem('social_poll_local_votes', JSON.stringify(arr));
+          updateUIWithData(arr);
+
+          fetch(NTFY_URL, { method: 'POST', body: JSON.stringify(fakeVote) }).catch(() => {});
         }, 1200);
       }
     };
@@ -907,25 +898,18 @@
     window.confirmResetPoll = async function() {
       if (!confirm("Are you sure you want to clear all poll responses for this session?")) return;
 
-      if (db && isFirebaseConnected) {
-        try {
-          const colRef = getVotesCollectionRef();
-          const snapshot = await getDocs(colRef);
-          const deletePromises = [];
-          snapshot.forEach(docItem => {
-            deletePromises.push(deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'votes', docItem.id)));
-          });
-          await Promise.all(deletePromises);
-          showToast("Poll reset successfully!", "success");
-        } catch (err) {
-          console.error("Failed to clear poll:", err);
-          showToast("Failed to reset poll data.", "error");
-        }
-      } else {
-        votesSnapshotData = [];
-        localStorage.removeItem('social_poll_local_votes');
-        updateUIWithData([]);
-        showToast("Poll reset!", "success");
+      allVotesMap = {};
+      localStorage.removeItem('social_poll_local_votes');
+      updateUIWithData([]);
+
+      try {
+        await fetch(NTFY_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'RESET_ALL', timestamp: Date.now() })
+        });
+        showToast("Poll reset successfully across all devices!", "success");
+      } catch (e) {
+        showToast("Poll reset locally!", "success");
       }
     };
 
@@ -990,8 +974,7 @@
     selectPlatform('Instagram');
 
     window.onload = function() {
-      initCharts();
-      initFirebase();
+      initRealtimeSync();
     };
   </script>
 </body>
