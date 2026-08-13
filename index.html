@@ -368,7 +368,7 @@
           </div>
 
           <div class="pt-4 mt-4 border-t border-slate-800/80 flex items-center justify-between">
-            <button onclick="confirmResetPoll()" class="text-xs text-rose-400 hover:text-rose-300 font-medium flex items-center gap-1.5 transition-colors">
+            <button onclick="openResetModal()" class="text-xs text-rose-400 hover:text-rose-300 font-medium flex items-center gap-1.5 transition-colors">
               <i class="fa-solid fa-trash-can"></i>
               Clear All Votes
             </button>
@@ -386,6 +386,7 @@
     <p>SocialPulse Live Classroom Polling Tool &bull; Real-time data visualization</p>
   </footer>
 
+  <!-- QR Code Modal -->
   <div id="qrModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="glass-panel rounded-2xl p-6 sm:p-8 max-w-sm w-full text-center border border-slate-700 shadow-2xl relative">
       <button onclick="closeQRModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
@@ -414,6 +415,26 @@
     </div>
   </div>
 
+  <!-- Clear Votes Confirmation Modal -->
+  <div id="resetModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="glass-panel rounded-2xl p-6 max-w-sm w-full text-center border border-slate-700 shadow-2xl relative space-y-4">
+      <div class="h-12 w-12 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto text-xl">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h3 class="text-lg font-bold text-white">Clear All Poll Votes?</h3>
+      <p class="text-xs text-slate-300">This will reset all student responses and clear the charts across all connected screens.</p>
+      <div class="flex items-center justify-center space-x-3 pt-2">
+        <button onclick="closeResetModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white text-xs font-semibold">
+          Cancel
+        </button>
+        <button onclick="confirmResetPoll()" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold">
+          Yes, Reset
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
   <div id="toastNotification" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
     <div class="glass-panel px-4 py-3 rounded-xl border border-indigo-500/40 shadow-2xl flex items-center space-x-3 text-xs text-slate-200">
       <i id="toastIcon" class="fa-solid fa-circle-info text-indigo-400 text-base"></i>
@@ -456,13 +477,13 @@
       initCharts();
       updateUIWithData(Object.values(allVotesMap));
 
-      // 1. Fetch initial historical votes cast so far across all devices
+      // 1. Fetch historical votes cast across all devices
       await fetchHistory();
 
-      // 2. Listen live for incoming votes from students via Server-Sent Events
+      // 2. Listen live for incoming votes via Server-Sent Events
       setupSSEListener();
 
-      // 3. Backup poll interval (every 3 seconds) to guarantee 100% sync reliability
+      // 3. Backup poll interval (every 3 seconds) for 100% sync reliability
       setInterval(fetchHistory, 3000);
     }
 
@@ -815,7 +836,7 @@
       localStorage.setItem('social_poll_local_votes', JSON.stringify(votesArr));
       updateUIWithData(votesArr);
 
-      // 2. Broadcast live to all other devices across the web
+      // 2. Broadcast live to all connected devices across the web
       try {
         await fetch(NTFY_URL, {
           method: 'POST',
@@ -895,9 +916,16 @@
       }
     };
 
-    window.confirmResetPoll = async function() {
-      if (!confirm("Are you sure you want to clear all poll responses for this session?")) return;
+    window.openResetModal = function() {
+      document.getElementById('resetModal').classList.remove('hidden');
+    };
 
+    window.closeResetModal = function() {
+      document.getElementById('resetModal').classList.add('hidden');
+    };
+
+    window.confirmResetPoll = async function() {
+      closeResetModal();
       allVotesMap = {};
       localStorage.removeItem('social_poll_local_votes');
       updateUIWithData([]);
