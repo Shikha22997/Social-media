@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SocialPulse - Social Media Hours Tracker</title>
+  <title>SocialPulse - Yesterday's Social Media Tracker</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -20,9 +20,9 @@
     <!-- Header -->
     <header class="text-center space-y-2">
       <h1 class="text-3xl font-extrabold tracking-tight text-white flex items-center justify-center gap-3">
-        <i class="fa-solid fa-clock text-indigo-500"></i> Social Media Tracker
+        <i class="fa-solid fa-clock text-indigo-500"></i> Yesterday's Social Media Tracker
       </h1>
-      <p class="text-xs text-slate-400">Classroom Live Stats &bull; Hours Spent Yesterday</p>
+      <p class="text-xs text-slate-400">Classroom Live Stats &bull; Select Your Usage Category For Yesterday</p>
     </header>
 
     <!-- Submission Form -->
@@ -38,8 +38,20 @@
         </div>
         <div>
           <label class="block text-xs font-medium text-slate-400 mb-1">Hours Used Social Media Yesterday</label>
-          <input type="number" id="socialHours" min="0" max="24" step="0.5" required placeholder="e.g., 3.5" 
+          <select id="socialHours" required 
             class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors">
+            <option value="" disabled selected>Select range...</option>
+            <option value="0.5" data-label="Less than 1 hour">Less than 1 hour</option>
+            <option value="1.5" data-label="1–2 hours">1–2 hours</option>
+            <option value="3" data-label="2–4 hours">2–4 hours</option>
+            <option value="5" data-label="4–6 hours">4–6 hours</option>
+            <option value="7" data-label="6–8 hours">6–8 hours</option>
+            <option value="9" data-label="8–10 hours">8–10 hours</option>
+            <option value="11" data-label="10–12 hours">10–12 hours</option>
+            <option value="14" data-label="12–16 hours">12–16 hours</option>
+            <option value="18" data-label="16–20 hours">16–20 hours</option>
+            <option value="22" data-label="20–24 hours">20–24 hours</option>
+          </select>
         </div>
         <button type="submit" 
           class="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-indigo-600/30 transition-all">
@@ -52,21 +64,21 @@
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <!-- Average Hours -->
       <div class="glass-panel p-5 rounded-2xl border border-slate-800 text-center space-y-1">
-        <p class="text-xs text-slate-400 font-medium">Class Average</p>
+        <p class="text-xs text-slate-400 font-medium">Est. Class Average</p>
         <p id="avgDisplay" class="text-3xl font-black text-indigo-400">0.0 <span class="text-sm font-normal text-slate-400">hrs</span></p>
       </div>
       
       <!-- Highest Usage -->
       <div class="glass-panel p-5 rounded-2xl border border-slate-800 text-center space-y-1">
-        <p class="text-xs text-slate-400 font-medium">Highest Usage</p>
-        <p id="highestHoursDisplay" class="text-2xl font-black text-emerald-400">0 <span class="text-sm font-normal text-slate-400">hrs</span></p>
+        <p class="text-xs text-slate-400 font-medium">Highest Usage Category</p>
+        <p id="highestHoursDisplay" class="text-base font-black text-emerald-400">--</p>
         <p id="highestNameDisplay" class="text-xs text-slate-300 font-semibold truncate">--</p>
       </div>
 
       <!-- Lowest Usage -->
       <div class="glass-panel p-5 rounded-2xl border border-slate-800 text-center space-y-1">
-        <p class="text-xs text-slate-400 font-medium">Lowest Usage</p>
-        <p id="lowestHoursDisplay" class="text-2xl font-black text-rose-400">0 <span class="text-sm font-normal text-slate-400">hrs</span></p>
+        <p class="text-xs text-slate-400 font-medium">Lowest Usage Category</p>
+        <p id="lowestHoursDisplay" class="text-base font-black text-rose-400">--</p>
         <p id="lowestNameDisplay" class="text-xs text-slate-300 font-semibold truncate">--</p>
       </div>
     </div>
@@ -109,25 +121,34 @@
   </div>
 
   <script>
-    let pollData = JSON.parse(localStorage.getItem('social_media_hours_data')) || [];
+    let pollData = JSON.parse(localStorage.getItem('social_media_category_data')) || [];
 
     document.addEventListener('DOMContentLoaded', updateDashboard);
 
     function handleFormSubmit(event) {
       event.preventDefault();
       const nameInput = document.getElementById('studentName');
-      const hoursInput = document.getElementById('socialHours');
+      const selectElement = document.getElementById('socialHours');
 
       const name = nameInput.value.trim();
-      const hours = parseFloat(hoursInput.value);
+      const selectedOption = selectElement.options[selectElement.selectedIndex];
+      
+      if (!name || !selectElement.value) return;
 
-      if (!name || isNaN(hours)) return;
+      const numericVal = parseFloat(selectElement.value);
+      const label = selectedOption.getAttribute('data-label');
 
-      pollData.push({ id: Date.now(), name, hours });
-      localStorage.setItem('social_media_hours_data', JSON.stringify(pollData));
+      pollData.push({ 
+        id: Date.now(), 
+        name: name, 
+        numericVal: numericVal, 
+        label: label 
+      });
+
+      localStorage.setItem('social_media_category_data', JSON.stringify(pollData));
 
       nameInput.value = '';
-      hoursInput.value = '';
+      selectElement.selectedIndex = 0;
       updateDashboard();
     }
 
@@ -138,37 +159,43 @@
 
       if (pollData.length === 0) {
         document.getElementById('avgDisplay').innerHTML = `0.0 <span class="text-sm font-normal text-slate-400">hrs</span>`;
-        document.getElementById('highestHoursDisplay').innerHTML = `0 <span class="text-sm font-normal text-slate-400">hrs</span>`;
+        document.getElementById('highestHoursDisplay').textContent = '--';
         document.getElementById('highestNameDisplay').textContent = '--';
-        document.getElementById('lowestHoursDisplay').innerHTML = `0 <span class="text-sm font-normal text-slate-400">hrs</span>`;
+        document.getElementById('lowestHoursDisplay').textContent = '--';
         document.getElementById('lowestNameDisplay').textContent = '--';
         container.innerHTML = `<p class="text-xs text-slate-500 col-span-full text-center py-4">No student responses submitted yet.</p>`;
         return;
       }
 
       // Calculations
-      const totalHours = pollData.reduce((sum, entry) => sum + entry.hours, 0);
+      const totalHours = pollData.reduce((sum, entry) => sum + entry.numericVal, 0);
       const avg = (totalHours / pollData.length).toFixed(1);
 
-      const maxHours = Math.max(...pollData.map(e => e.hours));
-      const minHours = Math.min(...pollData.map(e => e.hours));
+      const maxVal = Math.max(...pollData.map(e => e.numericVal));
+      const minVal = Math.min(...pollData.map(e => e.numericVal));
 
-      const highestStudents = pollData.filter(e => e.hours === maxHours).map(e => e.name).join(', ');
-      const lowestStudents = pollData.filter(e => e.hours === minHours).map(e => e.name).join(', ');
+      const highestEntries = pollData.filter(e => e.numericVal === maxVal);
+      const lowestEntries = pollData.filter(e => e.numericVal === minVal);
+
+      const highestLabel = highestEntries[0].label;
+      const lowestLabel = lowestEntries[0].label;
+
+      const highestStudents = highestEntries.map(e => e.name).join(', ');
+      const lowestStudents = lowestEntries.map(e => e.name).join(', ');
 
       // Update Top Cards
       document.getElementById('avgDisplay').innerHTML = `${avg} <span class="text-sm font-normal text-slate-400">hrs</span>`;
-      document.getElementById('highestHoursDisplay').innerHTML = `${maxHours} <span class="text-sm font-normal text-slate-400">hrs</span>`;
+      document.getElementById('highestHoursDisplay').textContent = highestLabel;
       document.getElementById('highestNameDisplay').textContent = highestStudents;
-      document.getElementById('lowestHoursDisplay').innerHTML = `${minHours} <span class="text-sm font-normal text-slate-400">hrs</span>`;
+      document.getElementById('lowestHoursDisplay').textContent = lowestLabel;
       document.getElementById('lowestNameDisplay').textContent = lowestStudents;
 
       // Render Responses Cards
       container.innerHTML = pollData.slice().reverse().map(entry => `
-        <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 flex justify-between items-center">
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 flex justify-between items-center gap-2">
           <span class="font-semibold text-xs text-slate-200 truncate">${escapeHTML(entry.name)}</span>
-          <span class="bg-indigo-500/20 text-indigo-300 font-bold text-xs px-2.5 py-1 rounded-lg">
-            ${entry.hours} hrs
+          <span class="bg-indigo-500/20 text-indigo-300 font-bold text-xs px-2.5 py-1 rounded-lg text-right shrink-0">
+            ${entry.label}
           </span>
         </div>
       `).join('');
@@ -184,7 +211,7 @@
 
     function confirmResetPoll() {
       pollData = [];
-      localStorage.removeItem('social_media_hours_data');
+      localStorage.removeItem('social_media_category_data');
       closeResetModal();
       updateDashboard();
     }
