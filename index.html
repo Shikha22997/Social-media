@@ -1,418 +1,92 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Classroom Live Poll: Social Media Usage</title>
-  
-  <!-- Tailwind CSS CDN -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SocialPulse - Social Media Hours Tracker</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome Icons CDN -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <!-- Chart.js CDN for live chart visualizations -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- QRCode.js CDN for live QR code generation -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <!-- Canvas Confetti CDN for milestone celebrations -->
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <!-- Google Fonts Inter & Plus Jakarta Sans -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Plus Jakarta Sans', 'sans-serif'],
-          },
-          colors: {
-            brand: {
-              50: '#f0f5ff',
-              500: '#6366f1',
-              600: '#4f46e5',
-              700: '#4338ca',
-            }
-          },
-          animation: {
-            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            'bounce-short': 'bounce 1s ease-in-out 1',
-          }
-        }
-      }
-    }
-  </script>
-
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background: radial-gradient(circle at top, #1e1b4b 0%, #0f172a 60%, #020617 100%);
-      min-height: 100vh;
-    }
     .glass-panel {
-      background: rgba(30, 41, 59, 0.7);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    .glass-card {
-      background: rgba(15, 23, 42, 0.6);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .gradient-text {
-      background: linear-gradient(135deg, #a5b4fc 0%, #c084fc 50%, #f472b6 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .custom-scrollbar::-webkit-scrollbar {
-      width: 6px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-track {
-      background: rgba(15, 23, 42, 0.5);
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: rgba(99, 102, 241, 0.4);
-      border-radius: 9999px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-      background: rgba(99, 102, 241, 0.7);
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
     }
   </style>
 </head>
-<body class="h-full text-slate-100 flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+<body class="bg-slate-950 text-slate-100 min-h-screen p-4 sm:p-8">
 
-  <header class="border-b border-slate-800/80 glass-panel sticky top-0 z-40 px-4 lg:px-8 py-3">
-    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
-      <div class="flex items-center space-x-3">
-        <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-          <i class="fa-solid fa-chart-line text-xl text-white"></i>
+  <div class="max-w-4xl mx-auto space-y-6">
+    
+    <!-- Header -->
+    <header class="text-center space-y-2">
+      <h1 class="text-3xl font-extrabold tracking-tight text-white flex items-center justify-center gap-3">
+        <i class="fa-solid fa-clock text-indigo-500"></i> Social Media Tracker
+      </h1>
+      <p class="text-xs text-slate-400">Classroom Live Stats &bull; Hours Spent Yesterday</p>
+    </header>
+
+    <!-- Submission Form -->
+    <div class="glass-panel rounded-2xl p-6 border border-slate-800 shadow-xl max-w-lg mx-auto">
+      <h2 class="text-base font-bold text-white mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-paper-plane text-indigo-400"></i> Submit Your Hours
+      </h2>
+      <form id="pollForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Your Name</label>
+          <input type="text" id="studentName" required placeholder="e.g., Alex" 
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors">
         </div>
         <div>
-          <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-            SocialPulse Live
-            <span id="liveBadge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 animate-pulse">
-              <span class="w-2 h-2 mr-1.5 rounded-full bg-emerald-400"></span> Live Sync
-            </span>
-          </h1>
-          <p class="text-xs text-slate-400">Classroom Social Media Usage Tracker</p>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Hours Used Social Media Yesterday</label>
+          <input type="number" id="socialHours" min="0" max="24" step="0.5" required placeholder="e.g., 3.5" 
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors">
         </div>
-      </div>
-
-      <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
-        <div class="bg-slate-900/90 p-1 rounded-xl border border-slate-800 flex items-center">
-          <button id="btnStudentView" onclick="switchView('student')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-2 bg-indigo-600 text-white shadow">
-            <i class="fa-solid fa-mobile-screen-button"></i>
-            <span>Student Vote</span>
-          </button>
-          <button id="btnPresenterView" onclick="switchView('presenter')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition-all flex items-center gap-2">
-            <i class="fa-solid fa-display"></i>
-            <span>Presenter Dashboard</span>
-          </button>
-        </div>
-
-        <button onclick="openQRModal()" class="p-2 sm:px-3 sm:py-1.5 rounded-xl glass-card hover:bg-slate-800 text-slate-300 hover:text-white transition-all text-xs font-medium flex items-center gap-2 border border-slate-700/60" title="Share Poll Link">
-          <i class="fa-solid fa-qrcode text-indigo-400"></i>
-          <span class="hidden sm:inline">Join Code</span>
+        <button type="submit" 
+          class="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-indigo-600/30 transition-all">
+          Submit Response
         </button>
-
-        <button id="btnSimulate" onclick="toggleSimulatedVotes()" class="p-2 sm:px-3 sm:py-1.5 rounded-xl glass-card hover:bg-slate-800 text-slate-300 hover:text-white transition-all text-xs font-medium flex items-center gap-2 border border-slate-700/60" title="Simulate responses in real-time">
-          <i id="simulateIcon" class="fa-solid fa-play text-amber-400"></i>
-          <span id="simulateText" class="hidden sm:inline">Simulate Live Class</span>
-        </button>
-      </div>
+      </form>
     </div>
-  </header>
 
-  <main class="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-8 flex flex-col justify-start">
-    
-    <section id="studentSection" class="max-w-2xl mx-auto w-full py-4 space-y-6">
+    <!-- Analytics Dashboard -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <!-- Average Hours -->
+      <div class="glass-panel p-5 rounded-2xl border border-slate-800 text-center space-y-1">
+        <p class="text-xs text-slate-400 font-medium">Class Average</p>
+        <p id="avgDisplay" class="text-3xl font-black text-indigo-400">0.0 <span class="text-sm font-normal text-slate-400">hrs</span></p>
+      </div>
       
-      <div class="glass-panel rounded-2xl p-6 sm:p-8 text-center relative overflow-hidden shadow-2xl">
-        <div class="absolute -top-12 -right-12 w-40 h-40 bg-indigo-500/10 rounded-full blur-2xl"></div>
-        <div class="absolute -bottom-12 -left-12 w-40 h-40 bg-purple-500/10 rounded-full blur-2xl"></div>
-        
-        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 mb-3">
-          <i class="fa-solid fa-clock-rotate-left mr-1.5"></i> Today's Activity Check
-        </span>
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-          How much social media have you used <span class="gradient-text">since morning</span>?
-        </h2>
-        <p class="text-sm text-slate-400 mt-2">
-          Be honest! Tap your approximate total hours across all apps today (Instagram, TikTok, YouTube, Snapchat, etc.)
-        </p>
+      <!-- Highest Usage -->
+      <div class="glass-panel p-5 rounded-2xl border border-slate-800 text-center space-y-1">
+        <p class="text-xs text-slate-400 font-medium">Highest Usage</p>
+        <p id="highestHoursDisplay" class="text-2xl font-black text-emerald-400">0 <span class="text-sm font-normal text-slate-400">hrs</span></p>
+        <p id="highestNameDisplay" class="text-xs text-slate-300 font-semibold truncate">--</p>
       </div>
 
-      <div class="glass-panel rounded-2xl p-6 sm:p-8 shadow-2xl border border-slate-800/80">
-        <form id="voteForm" onsubmit="handleVoteSubmit(event)" class="space-y-6">
-          
-          <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
-              1. Select Total Hours Spent Today
-            </label>
-            <div class="grid grid-cols-3 sm:grid-cols-4 gap-2.5" id="hoursGrid">
-              <button type="button" data-hours="0" onclick="selectHours(0)" class="hour-btn p-3 sm:p-4 rounded-xl glass-card text-center transition-all border border-slate-800 hover:border-indigo-500/50 group focus:outline-none">
-                <div class="text-xl sm:text-2xl font-bold text-white group-hover:scale-110 transition-transform">0 <span class="text-xs font-normal text-slate-400">hrs</span></div>
-                <div class="text-[10px] text-slate-400 mt-1">Digital Detox</div>
-              </button>
-              
-              <button type="button" data-hours="0.5" onclick="selectHours(0.5)" class="hour-btn p-3 sm:p-4 rounded-xl glass-card text-center transition-all border border-slate-800 hover:border-indigo-500/50 group focus:outline-none">
-                <div class="text-xl sm:text-2xl font-bold text-white group-hover:scale-110 transition-transform">&lt; 1 <span class="text-xs font-normal text-slate-400">hr</span></div>
-                <div class="text-[10px] text-slate-400 mt-1">Light use</div>
-              </button>
-
-              <button type="button" data-hours="1" onclick="selectHours(1)" class="hour-btn p-3 sm:p-4 rounded-xl glass-card text-center transition-all border border-slate-800 hover:border-indigo-500/50 group focus:outline-none">
-                <div class="text-xl sm:text-2xl font-bold text-white group-hover:scale-110 transition-transform">1 <span class="text-xs font-normal text-slate-400">hr</span></div>
-                <div class="text-[10px] text-slate-400 mt-1">Casual</div>
-              </button>
-
-              <button type="button" data-hours="2" onclick="selectHours(2)" class="hour-btn p-3 sm:p-4 rounded-xl glass-card text-center transition-all border border-slate-800 hover:border-indigo-500/50 group focus:outline-none">
-                <div class="text-xl sm:text-2xl font-bold text-white group-hover:scale-110 transition-transform">2 <span class="text-xs font-normal text-slate-400">hrs</span></div>
-                <div class="text-[10px] text-slate-400 mt-1">Moderate</div>
-              </button>
-
-              <button type="button" data-hours="3" onclick="selectHours(3)" class="hour-btn p-3 sm:p-4 rounded-xl glass-card text-center transition-all border border-slate-800 hover:border-indigo-500/50 group focus:outline-none">
-                <div class="text-xl sm:text-2xl font-bold text-white group-hover:scale-110 transition-transform">3 <span class="text-xs font-normal text-slate-400">hrs</span></div>
-                <div class="text-[10px] text-slate-400 mt-1">Above Avg</div>
-              </button>
-
-              <button type="button" data-hours="4" onclick="selectHours(4)" class="hour-btn p-3 sm:p-4 rounded-xl glass-card text-center transition-all border border-slate-800 hover:border-indigo-500/50 group focus:outline-none">
-                <div class="text-xl sm:text-2xl font-bold text-white group-hover:scale-110 transition-transform">4 <span class="text-xs font-normal text-slate-400">hrs</span></div>
-                <div class="text-[10px] text-slate-400 mt-1">Heavy</div>
-              </button>
-
-              <button type="button" data-hours="5" onclick="selectHours(5)" class="hour-btn p-3 sm:p-4 rounded-xl glass-card text-center transition-all border border-slate-800 hover:border-indigo-500/50 group focus:outline-none">
-                <div class="text-xl sm:text-2xl font-bold text-white group-hover:scale-110 transition-transform">5 <span class="text-xs font-normal text-slate-400">hrs</span></div>
-                <div class="text-[10px] text-slate-400 mt-1">Very Heavy</div>
-              </button>
-
-              <button type="button" data-hours="6" onclick="selectHours(6)" class="hour-btn p-3 sm:p-4 rounded-xl glass-card text-center transition-all border border-slate-800 hover:border-indigo-500/50 group focus:outline-none">
-                <div class="text-xl sm:text-2xl font-bold text-white group-hover:scale-110 transition-transform">6+ <span class="text-xs font-normal text-slate-400">hrs</span></div>
-                <div class="text-[10px] text-slate-400 mt-1">Marathon</div>
-              </button>
-            </div>
-            <input type="hidden" id="selectedHours" name="selectedHours">
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
-              2. Which app consumed most of your time?
-            </label>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5" id="platformGrid">
-              <button type="button" data-platform="Instagram" onclick="selectPlatform('Instagram')" class="platform-btn p-3 rounded-xl glass-card text-left flex items-center space-x-3 border border-slate-800 hover:border-pink-500/50 transition-all">
-                <i class="fa-brands fa-instagram text-xl text-pink-500"></i>
-                <span class="text-xs font-medium text-slate-200">Instagram</span>
-              </button>
-              <button type="button" data-platform="TikTok" onclick="selectPlatform('TikTok')" class="platform-btn p-3 rounded-xl glass-card text-left flex items-center space-x-3 border border-slate-800 hover:border-cyan-500/50 transition-all">
-                <i class="fa-brands fa-tiktok text-xl text-cyan-400"></i>
-                <span class="text-xs font-medium text-slate-200">TikTok</span>
-              </button>
-              <button type="button" data-platform="YouTube" onclick="selectPlatform('YouTube')" class="platform-btn p-3 rounded-xl glass-card text-left flex items-center space-x-3 border border-slate-800 hover:border-red-500/50 transition-all">
-                <i class="fa-brands fa-youtube text-xl text-red-500"></i>
-                <span class="text-xs font-medium text-slate-200">YouTube</span>
-              </button>
-              <button type="button" data-platform="Snapchat" onclick="selectPlatform('Snapchat')" class="platform-btn p-3 rounded-xl glass-card text-left flex items-center space-x-3 border border-slate-800 hover:border-yellow-500/50 transition-all">
-                <i class="fa-brands fa-snapchat text-xl text-yellow-400"></i>
-                <span class="text-xs font-medium text-slate-200">Snapchat</span>
-              </button>
-              <button type="button" data-platform="Reddit" onclick="selectPlatform('Reddit')" class="platform-btn p-3 rounded-xl glass-card text-left flex items-center space-x-3 border border-slate-800 hover:border-orange-500/50 transition-all">
-                <i class="fa-brands fa-reddit text-xl text-orange-500"></i>
-                <span class="text-xs font-medium text-slate-200">Reddit</span>
-              </button>
-              <button type="button" data-platform="X / Twitter" onclick="selectPlatform('X / Twitter')" class="platform-btn p-3 rounded-xl glass-card text-left flex items-center space-x-3 border border-slate-800 hover:border-slate-400/50 transition-all">
-                <i class="fa-brands fa-x-twitter text-xl text-slate-300"></i>
-                <span class="text-xs font-medium text-slate-200">X / Twitter</span>
-              </button>
-              <button type="button" data-platform="WhatsApp / Chat" onclick="selectPlatform('WhatsApp / Chat')" class="platform-btn p-3 rounded-xl glass-card text-left flex items-center space-x-3 border border-slate-800 hover:border-emerald-500/50 transition-all">
-                <i class="fa-brands fa-whatsapp text-xl text-emerald-400"></i>
-                <span class="text-xs font-medium text-slate-200">Messaging</span>
-              </button>
-              <button type="button" data-platform="Other" onclick="selectPlatform('Other')" class="platform-btn p-3 rounded-xl glass-card text-left flex items-center space-x-3 border border-slate-800 hover:border-purple-500/50 transition-all">
-                <i class="fa-solid fa-ellipsis text-xl text-purple-400"></i>
-                <span class="text-xs font-medium text-slate-200">Other</span>
-              </button>
-            </div>
-            <input type="hidden" id="selectedPlatform" name="selectedPlatform" value="Instagram">
-          </div>
-
-          <div>
-            <button id="submitVoteBtn" type="submit" class="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white font-bold text-base shadow-lg shadow-indigo-600/30 transition-all transform active:scale-[0.98] flex items-center justify-center space-x-2">
-              <i class="fa-solid fa-paper-plane"></i>
-              <span>Submit My Answer</span>
-            </button>
-          </div>
-        </form>
-
-        <div id="voteSuccessBanner" class="hidden mt-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-center animate-bounce-short">
-          <div class="flex items-center justify-center space-x-2 font-bold text-base">
-            <i class="fa-solid fa-circle-check text-emerald-400 text-xl"></i>
-            <span>Your Response has been recorded!</span>
-          </div>
-          <p class="text-xs text-emerald-400/80 mt-1">Watch the live presenter screen to see the class dynamic change.</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="presenterSection" class="hidden space-y-6">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="glass-panel p-5 rounded-2xl border border-slate-800 flex items-center justify-between relative overflow-hidden">
-          <div>
-            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Votes</p>
-            <h3 id="statTotalVotes" class="text-3xl lg:text-4xl font-extrabold text-white mt-1">0</h3>
-            <p id="statStudentsLabel" class="text-[11px] text-indigo-400 font-medium mt-1">Students responded</p>
-          </div>
-          <div class="h-12 w-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 text-xl">
-            <i class="fa-solid fa-users"></i>
-          </div>
-        </div>
-
-        <div class="glass-panel p-5 rounded-2xl border border-slate-800 flex items-center justify-between relative overflow-hidden">
-          <div>
-            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Class Average</p>
-            <h3 id="statAvgHours" class="text-3xl lg:text-4xl font-extrabold text-purple-400 mt-1">0.0 <span class="text-sm font-normal text-slate-400">hrs</span></h3>
-            <p class="text-[11px] text-purple-300/70 font-medium mt-1">Per student today</p>
-          </div>
-          <div class="h-12 w-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 text-xl">
-            <i class="fa-solid fa-hourglass-half"></i>
-          </div>
-        </div>
-
-        <div class="glass-panel p-5 rounded-2xl border border-slate-800 flex items-center justify-between relative overflow-hidden">
-          <div>
-            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Top Platform</p>
-            <h3 id="statTopPlatform" class="text-2xl lg:text-3xl font-extrabold text-pink-400 mt-1 truncate max-w-[120px] sm:max-w-none">--</h3>
-            <p id="statTopPlatformPct" class="text-[11px] text-pink-300/70 font-medium mt-1">Most time spent</p>
-          </div>
-          <div class="h-12 w-12 rounded-xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-400 text-xl">
-            <i class="fa-solid fa-fire"></i>
-          </div>
-        </div>
-
-        <div class="glass-panel p-5 rounded-2xl border border-slate-800 flex items-center justify-between relative overflow-hidden">
-          <div>
-            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Class Time</p>
-            <h3 id="statTotalHours" class="text-3xl lg:text-4xl font-extrabold text-amber-400 mt-1">0 <span class="text-sm font-normal text-slate-400">hrs</span></h3>
-            <p class="text-[11px] text-amber-300/70 font-medium mt-1">Combined screen time</p>
-          </div>
-          <div class="h-12 w-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-xl">
-            <i class="fa-solid fa-clock"></i>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 glass-panel p-6 rounded-2xl border border-slate-800 flex flex-col justify-between">
-          <div class="flex items-center justify-between mb-4">
-            <div>
-              <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                <i class="fa-solid fa-chart-column text-indigo-400"></i>
-                Distribution of Screen Hours
-              </h3>
-              <p class="text-xs text-slate-400">Real-time breakdown of hours spent since morning</p>
-            </div>
-            <div id="livePulseDot" class="flex items-center space-x-1 text-xs text-emerald-400 font-medium bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
-              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-              <span>Updating Live</span>
-            </div>
-          </div>
-          <div class="relative h-72 sm:h-80 w-full">
-            <canvas id="hoursBarChart"></canvas>
-          </div>
-        </div>
-
-        <div class="space-y-6 flex flex-col">
-          <div class="glass-panel p-6 rounded-2xl border border-slate-800 flex-1 flex flex-col justify-between">
-            <div class="mb-2">
-              <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                <i class="fa-solid fa-chart-pie text-pink-400"></i>
-                Top Platforms Used
-              </h3>
-              <p class="text-xs text-slate-400">Which apps are consuming class focus?</p>
-            </div>
-            <div class="relative h-52 w-full flex items-center justify-center my-auto">
-              <canvas id="platformDoughnutChart"></canvas>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 glass-panel p-6 rounded-2xl border border-slate-800">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-base font-bold text-white flex items-center gap-2">
-              <i class="fa-solid fa-bolt text-amber-400"></i>
-              Live Submission Feed
-            </h3>
-            <span class="text-xs text-slate-400">Latest incoming answers</span>
-          </div>
-
-          <div id="feedList" class="space-y-2 max-h-48 overflow-y-auto custom-scrollbar pr-2">
-            <div class="text-center py-6 text-slate-500 text-xs italic">
-              Waiting for students to cast their votes...
-            </div>
-          </div>
-        </div>
-
-        <div class="glass-panel p-6 rounded-2xl border border-slate-800 flex flex-col justify-between">
-          <div>
-            <h3 class="text-base font-bold text-white flex items-center gap-2 mb-3">
-              <i class="fa-solid fa-lightbulb text-yellow-400"></i>
-              Poll Insight
-            </h3>
-            <div id="insightBox" class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 text-xs text-slate-300 leading-relaxed space-y-2">
-              <p class="font-medium text-slate-200">📊 Waiting for answers...</p>
-              <p class="text-slate-400">Once votes come in, live statistical analysis will display here automatically.</p>
-            </div>
-          </div>
-
-          <div class="pt-4 mt-4 border-t border-slate-800/80 flex items-center justify-between">
-            <button onclick="openResetModal()" class="text-xs text-rose-400 hover:text-rose-300 font-medium flex items-center gap-1.5 transition-colors">
-              <i class="fa-solid fa-trash-can"></i>
-              Clear All Votes
-            </button>
-            <button onclick="triggerConfetti()" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium flex items-center gap-1.5 transition-colors">
-              <i class="fa-solid fa-wand-magic-sparkles"></i>
-              Celebrate Participation
-            </button>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="border-t border-slate-800/60 py-4 px-4 text-center text-xs text-slate-500">
-    <p>SocialPulse Live Classroom Polling Tool &bull; Real-time data visualization</p>
-  </footer>
-
-  <!-- QR Code Modal -->
-  <div id="qrModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="glass-panel rounded-2xl p-6 sm:p-8 max-w-sm w-full text-center border border-slate-700 shadow-2xl relative">
-      <button onclick="closeQRModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-
-      <div class="h-12 w-12 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center mx-auto mb-3 text-xl">
-        <i class="fa-solid fa-qrcode"></i>
-      </div>
-      <h3 class="text-xl font-bold text-white">Join the Poll</h3>
-      <p class="text-xs text-slate-400 mt-1 mb-4">Scan with your phone camera to open the student voting screen</p>
-
-      <div class="bg-white p-4 rounded-xl inline-block shadow-inner mb-4">
-        <div id="qrcodeCanvas"></div>
-      </div>
-
-      <div class="space-y-2">
-        <p class="text-xs text-slate-400">Or share this link:</p>
-        <div class="flex items-center space-x-2">
-          <input type="text" id="pollUrlInput" readonly class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-300 focus:outline-none" />
-          <button onclick="copyPollLink()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-3 py-2 rounded-lg font-medium transition-colors">
-            Copy
-          </button>
-        </div>
+      <!-- Lowest Usage -->
+      <div class="glass-panel p-5 rounded-2xl border border-slate-800 text-center space-y-1">
+        <p class="text-xs text-slate-400 font-medium">Lowest Usage</p>
+        <p id="lowestHoursDisplay" class="text-2xl font-black text-rose-400">0 <span class="text-sm font-normal text-slate-400">hrs</span></p>
+        <p id="lowestNameDisplay" class="text-xs text-slate-300 font-semibold truncate">--</p>
       </div>
     </div>
+
+    <!-- Live Responses List -->
+    <div class="glass-panel rounded-2xl p-6 border border-slate-800 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-list-check text-indigo-400"></i> Live Responses (<span id="totalCount">0</span>)
+        </h3>
+        <button onclick="openResetModal()" class="text-xs text-rose-400 hover:text-rose-300 font-medium flex items-center gap-1.5 transition-colors">
+          <i class="fa-solid fa-trash-can"></i> Clear All Responses
+        </button>
+      </div>
+
+      <div id="responsesContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+        <!-- Submissions will render here dynamically -->
+      </div>
+    </div>
+
   </div>
 
   <!-- Clear Votes Confirmation Modal -->
@@ -421,589 +95,105 @@
       <div class="h-12 w-12 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto text-xl">
         <i class="fa-solid fa-triangle-exclamation"></i>
       </div>
-      <h3 class="text-lg font-bold text-white">Clear All Poll Votes?</h3>
-      <p class="text-xs text-slate-300">This will reset all student responses and clear the charts across all connected screens.</p>
+      <h3 class="text-lg font-bold text-white">Clear All Submissions?</h3>
+      <p class="text-xs text-slate-300">This will permanently delete all student responses and reset the class statistics.</p>
       <div class="flex items-center justify-center space-x-3 pt-2">
         <button onclick="closeResetModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white text-xs font-semibold">
           Cancel
         </button>
         <button onclick="confirmResetPoll()" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold">
-          Yes, Reset
+          Yes, Clear All
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Toast Notification -->
-  <div id="toastNotification" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
-    <div class="glass-panel px-4 py-3 rounded-xl border border-indigo-500/40 shadow-2xl flex items-center space-x-3 text-xs text-slate-200">
-      <i id="toastIcon" class="fa-solid fa-circle-info text-indigo-400 text-base"></i>
-      <span id="toastMessage">Notification message</span>
-    </div>
-  </div>
+  <script>
+    let pollData = JSON.parse(localStorage.getItem('social_media_hours_data')) || [];
 
-  <script type="module">
-    // Public real-time sync channel for live multi-device classroom polling
-    const TOPIC_ID = 'social_pulse_poll_shikha22997_live_class';
-    const NTFY_URL = `https://ntfy.sh/${TOPIC_ID}`;
+    document.addEventListener('DOMContentLoaded', updateDashboard);
 
-    let allVotesMap = {};
-    let simulateInterval = null;
-    let isSimulating = false;
+    function handleFormSubmit(event) {
+      event.preventDefault();
+      const nameInput = document.getElementById('studentName');
+      const hoursInput = document.getElementById('socialHours');
 
-    let myStudentId = localStorage.getItem('social_poll_student_id') || 'student_' + Math.random().toString(36).substring(2, 9);
-    localStorage.setItem('social_poll_student_id', myStudentId);
+      const name = nameInput.value.trim();
+      const hours = parseFloat(hoursInput.value);
 
-    let currentSelectedHours = null;
-    let currentSelectedPlatform = 'Instagram';
+      if (!name || isNaN(hours)) return;
 
-    let barChartInstance = null;
-    let doughnutChartInstance = null;
+      pollData.push({ id: Date.now(), name, hours });
+      localStorage.setItem('social_media_hours_data', JSON.stringify(pollData));
 
-    function loadLocalVotes() {
-      try {
-        const cached = localStorage.getItem('social_poll_local_votes');
-        if (cached) {
-          const arr = JSON.parse(cached);
-          arr.forEach(v => { if (v && v.id) allVotesMap[v.id] = v; });
-        }
-      } catch (e) {
-        allVotesMap = {};
-      }
+      nameInput.value = '';
+      hoursInput.value = '';
+      updateDashboard();
     }
 
-    async function initRealtimeSync() {
-      loadLocalVotes();
-      initCharts();
-      updateUIWithData(Object.values(allVotesMap));
+    function updateDashboard() {
+      const container = document.getElementById('responsesContainer');
+      const totalCount = document.getElementById('totalCount');
+      totalCount.textContent = pollData.length;
 
-      // 1. Fetch historical votes cast across all devices
-      await fetchHistory();
-
-      // 2. Listen live for incoming votes via Server-Sent Events
-      setupSSEListener();
-
-      // 3. Backup poll interval (every 3 seconds) for 100% sync reliability
-      setInterval(fetchHistory, 3000);
-    }
-
-    async function fetchHistory() {
-      try {
-        const res = await fetch(`${NTFY_URL}/json?poll=1`);
-        if (!res.ok) return;
-        const text = await res.text();
-        const lines = text.trim().split('\n');
-        
-        let hasNew = false;
-        lines.forEach(line => {
-          if (!line) return;
-          try {
-            const msgObj = JSON.parse(line);
-            if (msgObj.message) {
-              const payload = JSON.parse(msgObj.message);
-              if (payload.action === 'RESET_ALL') {
-                allVotesMap = {};
-                hasNew = true;
-              } else if (payload.userId && payload.hours !== undefined) {
-                allVotesMap[payload.userId] = { id: payload.userId, ...payload };
-                hasNew = true;
-              }
-            }
-          } catch (err) {}
-        });
-
-        if (hasNew) {
-          const votesArr = Object.values(allVotesMap);
-          localStorage.setItem('social_poll_local_votes', JSON.stringify(votesArr));
-          updateUIWithData(votesArr);
-        }
-      } catch (e) {
-        console.warn("Sync notice:", e);
-      }
-    }
-
-    function setupSSEListener() {
-      try {
-        const sse = new EventSource(`${NTFY_URL}/sse`);
-        sse.onmessage = (event) => {
-          try {
-            const msgObj = JSON.parse(event.data);
-            if (msgObj.message) {
-              const payload = JSON.parse(msgObj.message);
-              if (payload.action === 'RESET_ALL') {
-                allVotesMap = {};
-              } else if (payload.userId && payload.hours !== undefined) {
-                allVotesMap[payload.userId] = { id: payload.userId, ...payload };
-              }
-              const votesArr = Object.values(allVotesMap);
-              localStorage.setItem('social_poll_local_votes', JSON.stringify(votesArr));
-              updateUIWithData(votesArr);
-            }
-          } catch (e) {}
-        };
-      } catch (e) {
-        console.warn("SSE connection fallback active:", e);
-      }
-    }
-
-    function initCharts() {
-      if (barChartInstance && doughnutChartInstance) return;
-
-      const barCtx = document.getElementById('hoursBarChart').getContext('2d');
-      barChartInstance = new Chart(barCtx, {
-        type: 'bar',
-        data: {
-          labels: ['0h', '<1h', '1h', '2h', '3h', '4h', '5h', '6h+'],
-          datasets: [{
-            label: 'Students',
-            data: [0, 0, 0, 0, 0, 0, 0, 0],
-            backgroundColor: [
-              'rgba(59, 130, 246, 0.7)',
-              'rgba(99, 102, 241, 0.7)',
-              'rgba(139, 92, 246, 0.7)',
-              'rgba(168, 85, 247, 0.7)',
-              'rgba(217, 70, 239, 0.7)',
-              'rgba(236, 72, 153, 0.7)',
-              'rgba(244, 63, 94, 0.7)',
-              'rgba(225, 29, 72, 0.85)'
-            ],
-            borderColor: [
-              '#60a5fa', '#818cf8', '#a78bfa', '#c084fc', '#e879f9', '#f472b6', '#fb7185', '#fda4af'
-            ],
-            borderWidth: 1.5,
-            borderRadius: 8,
-            borderSkipped: false,
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          animation: {
-            duration: 750,
-            easing: 'easeOutQuart'
-          },
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              backgroundColor: '#0f172a',
-              titleColor: '#f8fafc',
-              bodyColor: '#cbd5e1',
-              borderColor: '#334155',
-              borderWidth: 1,
-              padding: 12,
-              displayColors: false,
-              callbacks: {
-                label: (context) => `${context.parsed.y} Student${context.parsed.y === 1 ? '' : 's'}`
-              }
-            }
-          },
-          scales: {
-            x: {
-              grid: { display: false },
-              ticks: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans', weight: '600' } }
-            },
-            y: {
-              beginAtZero: true,
-              ticks: { 
-                stepSize: 1, 
-                color: '#94a3b8',
-                font: { family: 'Plus Jakarta Sans' } 
-              },
-              grid: { color: 'rgba(255, 255, 255, 0.05)' }
-            }
-          }
-        }
-      });
-
-      const doughnutCtx = document.getElementById('platformDoughnutChart').getContext('2d');
-      doughnutChartInstance = new Chart(doughnutCtx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Instagram', 'TikTok', 'YouTube', 'Snapchat', 'Reddit', 'X / Twitter', 'Messaging', 'Other'],
-          datasets: [{
-            data: [0, 0, 0, 0, 0, 0, 0, 0],
-            backgroundColor: [
-              '#ec4899', '#06b6d4', '#ef4444', '#eab308', '#f97316', '#64748b', '#10b981', '#a855f7'
-            ],
-            borderWidth: 2,
-            borderColor: '#0f172a'
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: '68%',
-          animation: { duration: 750 },
-          plugins: {
-            legend: {
-              position: 'bottom',
-              labels: {
-                color: '#cbd5e1',
-                boxWidth: 10,
-                padding: 12,
-                font: { family: 'Plus Jakarta Sans', size: 11 }
-              }
-            }
-          }
-        }
-      });
-    }
-
-    function updateUIWithData(votes) {
-      const totalCount = votes.length;
-      document.getElementById('statTotalVotes').innerText = totalCount;
-      document.getElementById('statStudentsLabel').innerText = totalCount === 1 ? 'Student responded' : 'Students responded';
-
-      if (totalCount === 0) {
-        document.getElementById('statAvgHours').innerHTML = `0.0 <span class="text-sm font-normal text-slate-400">hrs</span>`;
-        document.getElementById('statTopPlatform').innerText = '--';
-        document.getElementById('statTopPlatformPct').innerText = 'No votes yet';
-        document.getElementById('statTotalHours').innerHTML = `0 <span class="text-sm font-normal text-slate-400">hrs</span>`;
-
-        if (barChartInstance) {
-          barChartInstance.data.datasets[0].data = [0, 0, 0, 0, 0, 0, 0, 0];
-          barChartInstance.update();
-        }
-        if (doughnutChartInstance) {
-          doughnutChartInstance.data.datasets[0].data = [0, 0, 0, 0, 0, 0, 0, 0];
-          doughnutChartInstance.update();
-        }
-
-        document.getElementById('feedList').innerHTML = `
-          <div class="text-center py-6 text-slate-500 text-xs italic">
-            Waiting for students to cast their votes...
-          </div>
-        `;
-        document.getElementById('insightBox').innerHTML = `
-          <p class="font-medium text-slate-200">📊 Waiting for answers...</p>
-          <p class="text-slate-400">Once votes come in, live statistical analysis will display here automatically.</p>
-        `;
+      if (pollData.length === 0) {
+        document.getElementById('avgDisplay').innerHTML = `0.0 <span class="text-sm font-normal text-slate-400">hrs</span>`;
+        document.getElementById('highestHoursDisplay').innerHTML = `0 <span class="text-sm font-normal text-slate-400">hrs</span>`;
+        document.getElementById('highestNameDisplay').textContent = '--';
+        document.getElementById('lowestHoursDisplay').innerHTML = `0 <span class="text-sm font-normal text-slate-400">hrs</span>`;
+        document.getElementById('lowestNameDisplay').textContent = '--';
+        container.innerHTML = `<p class="text-xs text-slate-500 col-span-full text-center py-4">No student responses submitted yet.</p>`;
         return;
       }
 
-      let hoursMap = { 0: 0, 0.5: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
-      let platformMap = {};
-      let accumHours = 0;
+      // Calculations
+      const totalHours = pollData.reduce((sum, entry) => sum + entry.hours, 0);
+      const avg = (totalHours / pollData.length).toFixed(1);
 
-      votes.forEach(v => {
-        const h = parseFloat(v.hours);
-        if (!isNaN(h)) {
-          if (hoursMap[h] !== undefined) hoursMap[h]++;
-          else if (h >= 6) hoursMap[6]++;
-          accumHours += h;
-        }
+      const maxHours = Math.max(...pollData.map(e => e.hours));
+      const minHours = Math.min(...pollData.map(e => e.hours));
 
-        const p = v.platform || 'Other';
-        platformMap[p] = (platformMap[p] || 0) + 1;
-      });
+      const highestStudents = pollData.filter(e => e.hours === maxHours).map(e => e.name).join(', ');
+      const lowestStudents = pollData.filter(e => e.hours === minHours).map(e => e.name).join(', ');
 
-      const avgHours = (accumHours / totalCount).toFixed(1);
+      // Update Top Cards
+      document.getElementById('avgDisplay').innerHTML = `${avg} <span class="text-sm font-normal text-slate-400">hrs</span>`;
+      document.getElementById('highestHoursDisplay').innerHTML = `${maxHours} <span class="text-sm font-normal text-slate-400">hrs</span>`;
+      document.getElementById('highestNameDisplay').textContent = highestStudents;
+      document.getElementById('lowestHoursDisplay').innerHTML = `${minHours} <span class="text-sm font-normal text-slate-400">hrs</span>`;
+      document.getElementById('lowestNameDisplay').textContent = lowestStudents;
 
-      let topPlatform = '--';
-      let topPlatformCount = 0;
-      Object.keys(platformMap).forEach(p => {
-        if (platformMap[p] > topPlatformCount) {
-          topPlatformCount = platformMap[p];
-          topPlatform = p;
-        }
-      });
-      const topPlatformPct = Math.round((topPlatformCount / totalCount) * 100);
-
-      document.getElementById('statAvgHours').innerHTML = `${avgHours} <span class="text-sm font-normal text-slate-400">hrs</span>`;
-      document.getElementById('statTopPlatform').innerText = topPlatform;
-      document.getElementById('statTopPlatformPct').innerText = `${topPlatformPct}% of responses`;
-      document.getElementById('statTotalHours').innerHTML = `${Math.round(accumHours)} <span class="text-sm font-normal text-slate-400">hrs</span>`;
-
-      if (barChartInstance) {
-        barChartInstance.data.datasets[0].data = [
-          hoursMap[0], hoursMap[0.5], hoursMap[1], hoursMap[2], hoursMap[3], hoursMap[4], hoursMap[5], hoursMap[6]
-        ];
-        barChartInstance.update();
-      }
-
-      const platformsOrder = ['Instagram', 'TikTok', 'YouTube', 'Snapchat', 'Reddit', 'X / Twitter', 'Messaging', 'Other'];
-      const platformCounts = platformsOrder.map(p => platformMap[p] || 0);
-      
-      if (doughnutChartInstance) {
-        doughnutChartInstance.data.datasets[0].data = platformCounts;
-        doughnutChartInstance.update();
-      }
-
-      const sortedVotes = [...votes].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)).slice(0, 8);
-      const feedHtml = sortedVotes.map(v => {
-        const platformIcon = getPlatformIcon(v.platform);
-        const hoursText = v.hours == 0.5 ? '< 1 hour' : `${v.hours} hours`;
-        return `
-          <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80 flex items-center justify-between text-xs animate-fadeIn">
-            <div class="flex items-center space-x-2.5">
-              ${platformIcon}
-              <span class="font-medium text-slate-200">${v.platform || 'App'}</span>
-            </div>
-            <div class="flex items-center space-x-2">
-              <span class="px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 font-bold">
-                ${hoursText}
-              </span>
-              <span class="text-[10px] text-slate-500">Just now</span>
-            </div>
-          </div>
-        `;
-      }).join('');
-      document.getElementById('feedList').innerHTML = feedHtml;
-
-      generateInsightText(avgHours, topPlatform, topPlatformPct, totalCount, accumHours);
+      // Render Responses Cards
+      container.innerHTML = pollData.slice().reverse().map(entry => `
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 flex justify-between items-center">
+          <span class="font-semibold text-xs text-slate-200 truncate">${escapeHTML(entry.name)}</span>
+          <span class="bg-indigo-500/20 text-indigo-300 font-bold text-xs px-2.5 py-1 rounded-lg">
+            ${entry.hours} hrs
+          </span>
+        </div>
+      `).join('');
     }
 
-    function getPlatformIcon(platform) {
-      switch(platform) {
-        case 'Instagram': return '<i class="fa-brands fa-instagram text-pink-500 text-sm"></i>';
-        case 'TikTok': return '<i class="fa-brands fa-tiktok text-cyan-400 text-sm"></i>';
-        case 'YouTube': return '<i class="fa-brands fa-youtube text-red-500 text-sm"></i>';
-        case 'Snapchat': return '<i class="fa-brands fa-snapchat text-yellow-400 text-sm"></i>';
-        case 'Reddit': return '<i class="fa-brands fa-reddit text-orange-500 text-sm"></i>';
-        case 'X / Twitter': return '<i class="fa-brands fa-x-twitter text-slate-300 text-sm"></i>';
-        case 'Messaging': return '<i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>';
-        default: return '<i class="fa-solid fa-mobile-screen text-purple-400 text-sm"></i>';
-      }
-    }
-
-    function generateInsightText(avgHours, topPlatform, topPct, count, accumHours) {
-      let insight = '';
-      if (avgHours < 1.5) {
-        insight = `<strong>Low Social Usage Today:</strong> The class average is currently quite low at <strong>${avgHours} hrs</strong>. Most students have stayed focused or limited screen time since morning.`;
-      } else if (avgHours >= 1.5 && avgHours <= 3.5) {
-        insight = `<strong>Moderate Class Usage:</strong> The average of <strong>${avgHours} hrs</strong> reflects typical daily social engagement. <strong>${topPlatform}</strong> leads with ${topPct}% popularity.`;
-      } else {
-        insight = `<strong>High Social Usage Detected:</strong> The class has accumulated <strong>${accumHours} hours</strong> of social media since morning (${avgHours} hrs/student). Discuss strategies for digital balance!`;
-      }
-      
-      document.getElementById('insightBox').innerHTML = `
-        <p class="font-medium text-indigo-300 mb-1">💡 Real-time Analysis (${count} ${count === 1 ? 'vote' : 'votes'})</p>
-        <p class="text-slate-300 leading-relaxed">${insight}</p>
-      `;
-    }
-
-    window.selectHours = function(val) {
-      currentSelectedHours = val;
-      document.getElementById('selectedHours').value = val;
-
-      document.querySelectorAll('.hour-btn').forEach(btn => {
-        const btnVal = parseFloat(btn.getAttribute('data-hours'));
-        if (btnVal === val) {
-          btn.classList.add('bg-indigo-600', 'border-indigo-400', 'ring-2', 'ring-indigo-500/50');
-          btn.classList.remove('glass-card', 'border-slate-800');
-        } else {
-          btn.classList.remove('bg-indigo-600', 'border-indigo-400', 'ring-2', 'ring-indigo-500/50');
-          btn.classList.add('glass-card', 'border-slate-800');
-        }
-      });
-    };
-
-    window.selectPlatform = function(platform) {
-      currentSelectedPlatform = platform;
-      document.getElementById('selectedPlatform').value = platform;
-
-      document.querySelectorAll('.platform-btn').forEach(btn => {
-        const pVal = btn.getAttribute('data-platform');
-        if (pVal === platform) {
-          btn.classList.add('bg-slate-800', 'border-indigo-400', 'ring-1', 'ring-indigo-400');
-        } else {
-          btn.classList.remove('bg-slate-800', 'border-indigo-400', 'ring-1', 'ring-indigo-400');
-        }
-      });
-    };
-
-    window.handleVoteSubmit = async function(e) {
-      e.preventDefault();
-      
-      if (currentSelectedHours === null) {
-        showToast("Please select your hours spent today!", "warning");
-        const hoursGrid = document.getElementById('hoursGrid');
-        hoursGrid.classList.add('animate-pulse');
-        setTimeout(() => hoursGrid.classList.remove('animate-pulse'), 1500);
-        return;
-      }
-
-      const voteData = {
-        userId: myStudentId,
-        hours: currentSelectedHours,
-        platform: currentSelectedPlatform,
-        timestamp: Date.now()
-      };
-
-      // 1. Immediate local update
-      allVotesMap[myStudentId] = { id: myStudentId, ...voteData };
-      const votesArr = Object.values(allVotesMap);
-      localStorage.setItem('social_poll_local_votes', JSON.stringify(votesArr));
-      updateUIWithData(votesArr);
-
-      // 2. Broadcast live to all connected devices across the web
-      try {
-        await fetch(NTFY_URL, {
-          method: 'POST',
-          body: JSON.stringify(voteData)
-        });
-      } catch (err) {
-        console.warn("Realtime broadcast error:", err);
-      }
-
-      document.getElementById('voteSuccessBanner').classList.remove('hidden');
-      showToast("Your vote has been recorded!", "success");
-
-      if (typeof confetti === 'function') {
-        confetti({ particleCount: 40, spread: 70, origin: { y: 0.8 } });
-      }
-    };
-
-    window.switchView = function(view) {
-      const studentSec = document.getElementById('studentSection');
-      const presenterSec = document.getElementById('presenterSection');
-      const btnStudent = document.getElementById('btnStudentView');
-      const btnPresenter = document.getElementById('btnPresenterView');
-
-      if (view === 'presenter') {
-        studentSec.classList.add('hidden');
-        presenterSec.classList.remove('hidden');
-
-        btnPresenter.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-2 bg-indigo-600 text-white shadow";
-        btnStudent.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition-all flex items-center gap-2";
-
-        if (barChartInstance) barChartInstance.resize();
-        if (doughnutChartInstance) doughnutChartInstance.resize();
-      } else {
-        presenterSec.classList.add('hidden');
-        studentSec.classList.remove('hidden');
-
-        btnStudent.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-2 bg-indigo-600 text-white shadow";
-        btnPresenter.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition-all flex items-center gap-2";
-      }
-    };
-
-    window.toggleSimulatedVotes = function() {
-      if (isSimulating) {
-        clearInterval(simulateInterval);
-        isSimulating = false;
-        document.getElementById('simulateIcon').className = "fa-solid fa-play text-amber-400";
-        document.getElementById('simulateText').innerText = "Simulate Live Class";
-        showToast("Simulation stopped.", "info");
-      } else {
-        isSimulating = true;
-        document.getElementById('simulateIcon').className = "fa-solid fa-pause text-amber-400";
-        document.getElementById('simulateText').innerText = "Stop Simulation";
-        showToast("Simulating live student votes incoming...", "info");
-
-        const platforms = ['Instagram', 'TikTok', 'YouTube', 'Snapchat', 'Reddit', 'X / Twitter', 'Messaging', 'Other'];
-        const hourChoices = [0, 0.5, 1, 2, 3, 4, 5, 6];
-
-        simulateInterval = setInterval(async () => {
-          const fakeStudentId = 'sim_student_' + Math.floor(Math.random() * 1000);
-          const randomHour = hourChoices[Math.floor(Math.random() * hourChoices.length)];
-          const randomPlatform = platforms[Math.floor(Math.random() * platforms.length)];
-
-          const fakeVote = {
-            userId: fakeStudentId,
-            hours: randomHour,
-            platform: randomPlatform,
-            timestamp: Date.now()
-          };
-
-          allVotesMap[fakeStudentId] = { id: fakeStudentId, ...fakeVote };
-          const arr = Object.values(allVotesMap);
-          localStorage.setItem('social_poll_local_votes', JSON.stringify(arr));
-          updateUIWithData(arr);
-
-          fetch(NTFY_URL, { method: 'POST', body: JSON.stringify(fakeVote) }).catch(() => {});
-        }, 1200);
-      }
-    };
-
-    window.openResetModal = function() {
+    function openResetModal() {
       document.getElementById('resetModal').classList.remove('hidden');
-    };
-
-    window.closeResetModal = function() {
-      document.getElementById('resetModal').classList.add('hidden');
-    };
-
-    window.confirmResetPoll = async function() {
-      closeResetModal();
-      allVotesMap = {};
-      localStorage.removeItem('social_poll_local_votes');
-      updateUIWithData([]);
-
-      try {
-        await fetch(NTFY_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'RESET_ALL', timestamp: Date.now() })
-        });
-        showToast("Poll reset successfully across all devices!", "success");
-      } catch (e) {
-        showToast("Poll reset locally!", "success");
-      }
-    };
-
-    window.triggerConfetti = function() {
-      if (typeof confetti === 'function') {
-        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-      }
-    };
-
-    window.openQRModal = function() {
-      const modal = document.getElementById('qrModal');
-      modal.classList.remove('hidden');
-
-      const url = window.location.href;
-      document.getElementById('pollUrlInput').value = url;
-
-      const qrContainer = document.getElementById('qrcodeCanvas');
-      qrContainer.innerHTML = '';
-      if (typeof QRCode !== 'undefined') {
-        new QRCode(qrContainer, {
-          text: url,
-          width: 160,
-          height: 160,
-          colorDark : "#0f172a",
-          colorLight : "#ffffff",
-          correctLevel : QRCode.CorrectLevel.H
-        });
-      }
-    };
-
-    window.closeQRModal = function() {
-      document.getElementById('qrModal').classList.add('hidden');
-    };
-
-    window.copyPollLink = function() {
-      const copyText = document.getElementById("pollUrlInput");
-      copyText.select();
-      document.execCommand("copy");
-      showToast("Link copied to clipboard!", "success");
-    };
-
-    function showToast(msg, type = "info") {
-      const toast = document.getElementById('toastNotification');
-      const toastMsg = document.getElementById('toastMessage');
-      const toastIcon = document.getElementById('toastIcon');
-
-      toastMsg.innerText = msg;
-      if (type === "success") toastIcon.className = "fa-solid fa-circle-check text-emerald-400 text-base";
-      else if (type === "warning") toastIcon.className = "fa-solid fa-triangle-exclamation text-amber-400 text-base";
-      else if (type === "error") toastIcon.className = "fa-solid fa-circle-xmark text-rose-400 text-base";
-      else toastIcon.className = "fa-solid fa-circle-info text-indigo-400 text-base";
-
-      toast.classList.remove('translate-y-20', 'opacity-0');
-      toast.classList.add('translate-y-0', 'opacity-100');
-
-      setTimeout(() => {
-        toast.classList.remove('translate-y-0', 'opacity-100');
-        toast.classList.add('translate-y-20', 'opacity-0');
-      }, 3000);
     }
 
-    selectPlatform('Instagram');
+    function closeResetModal() {
+      document.getElementById('resetModal').classList.add('hidden');
+    }
 
-    window.onload = function() {
-      initRealtimeSync();
-    };
+    function confirmResetPoll() {
+      pollData = [];
+      localStorage.removeItem('social_media_hours_data');
+      closeResetModal();
+      updateDashboard();
+    }
+
+    function escapeHTML(str) {
+      return str.replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+      );
+    }
   </script>
 </body>
 </html>
